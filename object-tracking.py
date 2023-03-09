@@ -189,11 +189,11 @@ while True:
     output_frame = draw_roi(nframe, points_polygon)
     resized = imutils.resize(output_frame, width=1000)
 
-    ## save the video with the tracking objects
-    # if writer is None:
-    #     fourcc = cv2.VideoWriter_fourcc(*"XVID")
-    #     writer = cv2.VideoWriter('traffic-tracking.avi', fourcc, 30, (frame.shape[1], frame.shape[0]), True)
-    # writer.write(output_frame)
+    # save the video with the tracking objects
+    if writer is None:
+        fourcc = cv2.VideoWriter_fourcc(*"XVID")
+        writer = cv2.VideoWriter('traffic-tracking.avi', fourcc, 30, (frame.shape[1], frame.shape[0]), True)
+    writer.write(output_frame)
 
     # show the output frame
     cv2.imshow('Frame', resized)
