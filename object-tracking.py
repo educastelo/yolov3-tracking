@@ -17,14 +17,15 @@ def show_fps(imagem, frames_persec):
     cv2.putText(imagem, fps_text, (10, 20), font, 2.0, (240, 240, 240), 1, line)
     return imagem
 
-
-points_polygon = [[[434, 537], [485, 715], [993, 599], [747, 505], [434, 538]]]
-vs = cv2.VideoCapture("rtsp://infront:1nfr0nTmi@187.63.189.161:3000/cam/realmonitor?channel=1&subtype=0")
+# setting the ROI (polygon) of the frame and loading the video stream
+points_polygon = [[[3827, 838], [3, 812], [6, 2150], [3833, 2147], [3824, 841]]]
+stream = 'traffic.webm'
+vs = cv2.VideoCapture(stream)
 
 # instantiate our centroid tracker, then initialize a list to store
 # each of our dlib correlation trackers, followed by a dictionary to
 # map each unique object ID to a TrackableObject
-ct = CentroidTracker(maxDisappeared=1, maxDistance=400)
+ct = CentroidTracker(maxDisappeared=1, maxDistance=300)
 trackers = []
 trackableObjects = {}
 (H, W) = (None, None)
@@ -69,7 +70,6 @@ writer = None
 while True:
     # read the next frame from the video stream and resize it
     _, frame = vs.read()
-    # frame = imutils.resize(frame, width=1000)
 
     # if the frame dimensions are None, grab them
     if W is None or H is None:
@@ -189,17 +189,15 @@ while True:
     output_frame = draw_roi(nframe, points_polygon)
     resized = imutils.resize(output_frame, width=1000)
 
+    ## save the video with the tracking objects
     # if writer is None:
     #     fourcc = cv2.VideoWriter_fourcc(*"XVID")
-    #     writer = cv2.VideoWriter('DN5005B.avi', fourcc, 20, (frame.shape[1], frame.shape[0]), True)
+    #     writer = cv2.VideoWriter('traffic-tracking.avi', fourcc, 30, (frame.shape[1], frame.shape[0]), True)
     # writer.write(output_frame)
 
     # show the output frame
     cv2.imshow('Frame', resized)
     key = cv2.waitKey(1) & 0xFF
-
-    if key == ord('k'):
-        cv2.imwrite("filename.jpg", resized)
 
     # if the 'q' key was pressed, break from the loop
     if key == ord("q"):
