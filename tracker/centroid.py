@@ -23,16 +23,16 @@ import os
 
 # connect to database
 LOCAL_PATH = os.getcwd()
-NAME_DB = '/home/eduardo/projects/dev/count_polygon_yolov3/teste.db'
+NAME_DB = './teste.db'
 PATH_DB = os.path.join(LOCAL_PATH, NAME_DB)
 sqliteConnection = sqlite3.connect(PATH_DB)
 cursor = sqliteConnection.cursor()
-cursor.execute('CREATE TABLE IF NOT EXISTS datavisiooh (DAY, MONTH, YEAR, HOUR, TYPE, CONFIDENCE);')
+cursor.execute('CREATE TABLE IF NOT EXISTS object_tracking (DAY, MONTH, YEAR, HOUR, TYPE, CONFIDENCE);')
 sqliteConnection.commit()
 
 
 class CentroidTracker:
-    def __init__(self, maxDisappeared=50, maxDistance=50):
+    def __init__(self, maxDisappeared=1, maxDistance=100):
         # maxDisappeared = nr of consecutive frames until deregister and object
         # maxDistance = the maximum distance between centroids
         self.nextObjectID = 1
@@ -57,7 +57,7 @@ class CentroidTracker:
         month = datetime.now().strftime("%m")
         day = datetime.now().strftime("%d")
         time = datetime.now().strftime("%H:%M:%S")
-        sqlite_insert_query = "INSERT INTO datavisiooh (DAY, MONTH, YEAR, HOUR, TYPE, CONFIDENCE) values (?, ?, ?, ?, ?, ?)"
+        sqlite_insert_query = "INSERT INTO object_tracking (DAY, MONTH, YEAR, HOUR, TYPE, CONFIDENCE) values (?, ?, ?, ?, ?, ?)"
         data_tuple = (day, month, year, time, classDetected, int(confidence*100))
         cursor.execute(sqlite_insert_query, data_tuple)
         sqliteConnection.commit()
