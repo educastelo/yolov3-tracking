@@ -18,19 +18,19 @@ def show_fps(imagem, frames_persec):
     return imagem
 
 # setting the ROI (polygon) of the frame and loading the video stream
-points_polygon = [[[3827, 838], [3, 812], [6, 2150], [3833, 2147], [3824, 841]]]
+points_polygon = [[[886, 489], [3827, 492], [3830, 2150], [12, 2153], [9, 1043], [889, 492]]]
 stream = 'traffic.webm'
 vs = cv2.VideoCapture(stream)
 
 # instantiate our centroid tracker, then initialize a list to store
 # each of our dlib correlation trackers, followed by a dictionary to
 # map each unique object ID to a TrackableObject
-ct = CentroidTracker(maxDisappeared=1, maxDistance=300)
+ct = CentroidTracker(maxDisappeared=1, maxDistance=400)
 trackers = []
 trackableObjects = {}
 (H, W) = (None, None)
 
-# construct the argument parse and parse the arguments
+# set the confidence level
 confidenceLevel = 0.2
 threshold = 0.3
 
@@ -189,11 +189,11 @@ while True:
     output_frame = draw_roi(nframe, points_polygon)
     resized = imutils.resize(output_frame, width=1000)
 
-    # save the video with the tracking objects
-    if writer is None:
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")
-        writer = cv2.VideoWriter('traffic-tracking.avi', fourcc, 30, (frame.shape[1], frame.shape[0]), True)
-    writer.write(output_frame)
+    # # save the video with the tracking objects
+    # if writer is None:
+    #     fourcc = cv2.VideoWriter_fourcc(*"XVID")
+    #     writer = cv2.VideoWriter('traffic-yolov3.avi', fourcc, 30, (frame.shape[1], frame.shape[0]), True)
+    # writer.write(output_frame)
 
     # show the output frame
     cv2.imshow('Frame', resized)
