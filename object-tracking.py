@@ -3,10 +3,10 @@ from tracker.centroid import CentroidTracker
 from utilities.utils import point_in_polygons, draw_roi
 from imutils.video import FPS
 import numpy as np
-import imutils
 import time
 import cv2
 import os
+
 
 def show_fps(imagem, frames_persec):
     """Draw fps number at top-left corner of the image."""
@@ -17,9 +17,10 @@ def show_fps(imagem, frames_persec):
     cv2.putText(imagem, fps_text, (10, 20), font, 2.0, (240, 240, 240), 1, line)
     return imagem
 
+
 # setting the ROI (polygon) of the frame and loading the video stream
-points_polygon = [[[886, 489], [3827, 492], [3830, 2150], [12, 2153], [9, 1043], [889, 492]]]
-stream = 'traffic.webm'
+points_polygon = [[[597, 174], [623, 476], [221, 476], [237, 181], [598, 173]]]
+stream = u'rtsp://admin:thrOUGH77@wam02.ddns.net:554/cam/realmonitor?channel=1&subtype=1'
 vs = cv2.VideoCapture(stream)
 
 # instantiate our centroid tracker, then initialize a list to store
@@ -155,7 +156,7 @@ while True:
             # draw a bounding box rectangle and label on the frame
             color = [int(c) for c in COLORS[classIDs[i]]]
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-            text = "{}: {:.4f}".format(LABELS[classIDs[i]], ################
+            text = "{}: {:.4f}".format(LABELS[classIDs[i]],  ################
                                        confidences[i])
             cv2.putText(frame, text, (x, y - 5),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
@@ -173,7 +174,7 @@ while True:
         # draw both the ID of the object and the centroid of the
         # object on the output frame
         text = f"ID {objectID}"
-        cv2.putText(frame, text, (centroid[0] - 10, centroid[1] - 10), #############
+        cv2.putText(frame, text, (centroid[0] - 10, centroid[1] - 10),  #############
                     cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
         cv2.circle(frame, (centroid[0], centroid[1]), 4, (0, 255, 0), - 1)
 
@@ -187,22 +188,22 @@ while True:
 
     # draw roi
     output_frame = draw_roi(nframe, points_polygon)
-    resized = imutils.resize(output_frame, width=1000)
+    # resized = cv2.resize(output_frame, (1200, int(output_frame.shape[0] * 1200 / output_frame.shape[1])))
 
-    # # save the video with the tracking objects
-    # if writer is None:
-    #     fourcc = cv2.VideoWriter_fourcc(*"XVID")
-    #     writer = cv2.VideoWriter('traffic-yolov3.avi', fourcc, 30, (frame.shape[1], frame.shape[0]), True)
-    # writer.write(output_frame)
+    # save the video with the tracking objects
+    if writer is None:
+        fourcc = cv2.VideoWriter_fourcc(*"XVID")
+        writer = cv2.VideoWriter('rtsp_wam02.avi', fourcc, 10, (frame.shape[1], frame.shape[0]), True)
+    writer.write(output_frame)
 
-    # show the output frame
-    cv2.imshow('Frame', resized)
-    key = cv2.waitKey(1) & 0xFF
-
-    # if the 'q' key was pressed, break from the loop
-    if key == ord("q"):
-        break
-
-# do a bit of cleanup
-vs.release()
-cv2.destroyAllWindows()
+#     # show the output frame
+#     cv2.imshow('Frame', resized)
+#     key = cv2.waitKey(1) & 0xFF
+#
+#     # if the 'q' key was pressed, break from the loop
+#     if key == ord("q"):
+#         break
+#
+# # do a bit of cleanup
+# vs.release()
+# cv2.destroyAllWindows()
