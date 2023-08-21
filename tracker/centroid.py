@@ -23,7 +23,7 @@ import os
 
 # connect to database
 LOCAL_PATH = os.getcwd()
-NAME_DB = './count.db'
+NAME_DB = 'tracker/count.db'
 PATH_DB = os.path.join(LOCAL_PATH, NAME_DB)
 sqliteConnection = sqlite3.connect(PATH_DB)
 cursor = sqliteConnection.cursor()

@@ -6,6 +6,7 @@ import numpy as np
 import time
 import cv2
 import os
+import cvzone
 
 
 def show_fps(imagem, frames_persec):
@@ -19,8 +20,8 @@ def show_fps(imagem, frames_persec):
 
 
 # setting the ROI (polygon) of the frame and loading the video stream
-points_polygon = [[[597, 174], [623, 476], [221, 476], [237, 181], [598, 173]]]
-stream = u'rtsp://admin:thrOUGH77@wam02.ddns.net:554/cam/realmonitor?channel=1&subtype=1'
+points_polygon = [[[827, 484], [286, 1057], [52, 809], [398, 518], [833, 478]]]
+stream = u'rtmp://rtmp...'
 vs = cv2.VideoCapture(stream)
 
 # instantiate our centroid tracker, then initialize a list to store
@@ -32,7 +33,7 @@ trackableObjects = {}
 (H, W) = (None, None)
 
 # set the confidence level
-confidenceLevel = 0.2
+confidenceLevel = 0.1
 threshold = 0.3
 
 # load the COCO class labels our YOLO model was trained on
@@ -48,7 +49,7 @@ COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),
 weightsPath = os.path.sep.join(["yolov3", "yolov3.weights"])
 configPath = os.path.sep.join(["yolov3", "yolov3.cfg"])
 
-# load our YOLO object detector trained on COCO dataset (80 classes)
+# load our YOLO object model trained on COCO dataset (80 classes)
 # and determine only the *output* layer names that we need from YOLO
 print("[INFO] loading YOLO from disk...")
 net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
@@ -77,7 +78,7 @@ while True:
         (H, W) = frame.shape[:2]
 
     # construct a blob from the input frame and then perform a forward
-    # pass of the YOLO object detector, giving us our bounding boxes
+    # pass of the YOLO object model, giving us our bounding boxes
     # and associated probabilities
     start = time.time()
     blob = cv2.dnn.blobFromImage(frame, 1 / 255.0, (416, 416),
@@ -153,13 +154,23 @@ while True:
             if not test_polygon:
                 continue
 
-            # draw a bounding box rectangle and label on the frame
-            color = [int(c) for c in COLORS[classIDs[i]]]
-            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-            text = "{}: {:.4f}".format(LABELS[classIDs[i]],  ################
-                                       confidences[i])
-            cv2.putText(frame, text, (x, y - 5),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            # mostra retangulo com corner customizado
+            cvzone.cornerRect(frame, (x, y, w, h), l=10, t=4)
+            cvzone.putTextRect(frame,
+                               f'{LABELS[classIDs[i]]}',
+                               (max(0, x), max(35, y)),
+                               scale=0.5, thickness=1, colorR=(224, 182, 90),
+                               colorT=(40, 40, 40),
+                               font=cv2.FONT_HERSHEY_DUPLEX,
+                               offset=5)
+
+            # # draw a bounding box rectangle and label on the frame
+            # color = [int(c) for c in COLORS[classIDs[i]]]
+            # cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+            # text = "{}: {:.4f}".format(LABELS[classIDs[i]],  ################
+            #                            confidences[i])
+            # cv2.putText(frame, text, (x, y - 5),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
             rects.append([x, y, x + w, y + h])
             classDetected_list.append(LABELS[classIDs[i]])
@@ -169,14 +180,14 @@ while True:
     # box rectangles
     objects = ct.update(rects, classDetected_list, confDegree_list)
 
-    # loop over the tracked objects
-    for (objectID, centroid) in objects.items():
-        # draw both the ID of the object and the centroid of the
-        # object on the output frame
-        text = f"ID {objectID}"
-        cv2.putText(frame, text, (centroid[0] - 10, centroid[1] - 10),  #############
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-        cv2.circle(frame, (centroid[0], centroid[1]), 4, (0, 255, 0), - 1)
+    # # loop over the tracked objects
+    # for (objectID, centroid) in objects.items():
+    #     # draw both the ID of the object and the centroid of the
+    #     # object on the output frame
+    #     text = f"ID {objectID}"
+    #     cv2.putText(frame, text, (centroid[0] - 10, centroid[1] - 10),  #############
+    #                 cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+    #     cv2.circle(frame, (centroid[0], centroid[1]), 4, (0, 255, 0), - 1)
 
     toc = time.time()
     curr_fps = 1.0 / (toc - tic)
@@ -188,22 +199,22 @@ while True:
 
     # draw roi
     output_frame = draw_roi(nframe, points_polygon)
-    # resized = cv2.resize(output_frame, (1200, int(output_frame.shape[0] * 1200 / output_frame.shape[1])))
+    resized = cv2.resize(output_frame, (1200, int(output_frame.shape[0] * 1200 / output_frame.shape[1])))
 
-    # save the video with the tracking objects
-    if writer is None:
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")
-        writer = cv2.VideoWriter('rtsp_wam02.avi', fourcc, 10, (frame.shape[1], frame.shape[0]), True)
-    writer.write(output_frame)
+    # # save the video with the tracking objects
+    # if writer is None:
+    #     fourcc = cv2.VideoWriter_fourcc(*"XVID")
+    #     writer = cv2.VideoWriter('yolov3.avi', fourcc, 20, (frame.shape[1], frame.shape[0]), True)
+    # writer.write(output_frame)
 
-#     # show the output frame
-#     cv2.imshow('Frame', resized)
-#     key = cv2.waitKey(1) & 0xFF
-#
-#     # if the 'q' key was pressed, break from the loop
-#     if key == ord("q"):
-#         break
-#
-# # do a bit of cleanup
-# vs.release()
-# cv2.destroyAllWindows()
+    # show the output frame
+    cv2.imshow('Frame', resized)
+    key = cv2.waitKey(1) & 0xFF
+
+    # if the 'q' key was pressed, break from the loop
+    if key == ord("q"):
+        break
+
+# do a bit of cleanup
+vs.release()
+cv2.destroyAllWindows()
